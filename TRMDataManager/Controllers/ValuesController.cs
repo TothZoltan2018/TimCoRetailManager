@@ -24,9 +24,9 @@ namespace TRMDataManager.Controllers
         {
             return "value";
         }
-
+        
         // POST api/values
-        public void Post([FromBody]string value)
+        public void Post([FromBody]string value) // The value field in the swagger form needs to be inside "" to get in here
         {
         }
 
