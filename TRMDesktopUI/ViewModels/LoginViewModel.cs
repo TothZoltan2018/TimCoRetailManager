@@ -10,7 +10,7 @@ namespace TRMDesktopUI.ViewModels
     public class LoginViewModel : Screen
     {
         private string _userName;
-        private string _password ="";
+        private string _password;
 
         public string UserName
         {
