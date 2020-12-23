@@ -5,6 +5,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Controls;
+using TRMDesktopUI.Helpers;
 using TRMDesktopUI.ViewModels;
 
 namespace TRMDesktopUI
@@ -24,6 +26,12 @@ namespace TRMDesktopUI
         public Bootstrapper()
         {
             Initialize(); // Initialize the framework
+
+            // These 4 lines are copied from https://stackoverflow.com/questions/30631522/caliburn-micro-support-for-passwordbox
+            ConventionManager.AddElementConvention<PasswordBox>(
+            PasswordBoxHelper.BoundPasswordProperty,
+            "Password",
+            "PasswordChanged");
         }
 
         protected override void Configure()
