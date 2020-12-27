@@ -42,7 +42,8 @@ namespace TRMDesktopUI
             _container
                 .Singleton<IWindowManager, WindowManager>()
                 // If the ShellWiewModel aks for an IEventAggregator, it gives back the first EventAggregator ever created
-                .Singleton<IEventAggregator, EventAggregator>();
+                .Singleton<IEventAggregator, EventAggregator>()
+                .Singleton<IAPIHelper, APIHelper>();
 
             // Connect all of our ViewModels to our Views
             // Reflection: Although this is resource consuming, but it happens only once, at startup.
