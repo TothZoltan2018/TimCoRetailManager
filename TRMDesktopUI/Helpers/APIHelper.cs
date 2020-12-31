@@ -8,7 +8,7 @@ using TRMDesktopUI.Models;
 
 namespace TRMDesktopUI.Helpers
 {
-    // Handles all of our API call interactions so that the Views calls this and say that give me 
+    // Handles all of our API call interactions so that the Views call this and say that give me 
     // this and this
     public class APIHelper : IAPIHelper
     {
