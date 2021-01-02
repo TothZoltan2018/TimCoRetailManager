@@ -13,12 +13,13 @@ namespace TRMDataManager.Controllers
     public class UserController : ApiController
     {        
         // Find a logged in user's data.
-        public List<UserModel> GetById()
+        [HttpGet]
+        public UserModel GetById()
         {
             string userId = RequestContext.Principal.Identity.GetUserId();
             UserData data =  new UserData();
 
-            return data.GetUserById(userId);
+            return data.GetUserById(userId).First();
         } 
     }
 }

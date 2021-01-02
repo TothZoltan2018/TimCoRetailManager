@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TRMDesktopUI.Models
+namespace TRMDesktopUI.Models // TODO: Zoli: Should not it have been changed to TRMDesktopUI.Library.Models?
 {
     public class AuthenticatedUser
     {
