@@ -57,13 +57,13 @@
         </DockPanel>
 
         <DockPanel Grid.Row="4" Grid.Column="2">
-            <TextBlock Text="Total: " />
-            <TextBlock x:Name="Total" Text="$0.00" TextAlignment="Right"/>
+            <TextBlock Text="Tax: " />
+            <TextBlock x:Name="Tax" Text="$0.00" TextAlignment="Right"/>
         </DockPanel>
 
         <DockPanel Grid.Row="5" Grid.Column="2">
-            <TextBlock Text="Tax: " />
-            <TextBlock x:Name="Tax" Text="$0.00" TextAlignment="Right"/>
+            <TextBlock Text="Total: " />
+            <TextBlock x:Name="Total" Text="$0.00" TextAlignment="Right"/>
         </DockPanel>
 
         <Button x:Name="Checkout" Grid.Row="6" Grid.Column="2" Content="Check Out"

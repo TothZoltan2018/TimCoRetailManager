@@ -38,13 +38,15 @@ namespace TRMDesktopUI.ViewModels
 
         private int _itemQuantity;
 
+        // Althought ItemQuantity is a textbox, expecting string, auto-validation is done in the background to check and convert 
+        // a numeric string to integer
         public int ItemQuantity
         {
             get { return _itemQuantity; }
             set
             {
                 _itemQuantity = value;
-                NotifyOfPropertyChange(() => ItemQuantity); // Zoli: this is Product in the tutorial around 40:20 after copy-paste
+                NotifyOfPropertyChange(() => ItemQuantity);
             }
         }
 
