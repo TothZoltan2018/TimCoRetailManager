@@ -13,7 +13,7 @@ namespace TRMDesktopUI.Library.Api
     // this and this
     public class APIHelper : IAPIHelper
     {
-        private HttpClient apiClient;
+        private HttpClient _apiClient;
         private ILoggedInUserModel _loggedInUser;
 
         public APIHelper(ILoggedInUserModel loggedInUser)
@@ -22,16 +22,26 @@ namespace TRMDesktopUI.Library.Api
             _loggedInUser = loggedInUser;
         }
 
+        // Read only property to be used from outside this class.
+        //This class is a singleton (created in Bootstrapper), so only one instance of this HttpClient proprty exists.
+        public HttpClient ApiClient
+        {
+            get
+            {
+                return _apiClient;
+            }                
+        }
+
         private void InitializeClient()
         {
             // We added System.Configuration to References of this Project
             // The value belongs to the key "api" in the Appconfig file
             string api = ConfigurationManager.AppSettings["api"];
 
-            apiClient = new HttpClient();
-            apiClient.BaseAddress = new Uri(api);
-            apiClient.DefaultRequestHeaders.Accept.Clear();
-            apiClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+            _apiClient = new HttpClient();
+            _apiClient.BaseAddress = new Uri(api);
+            _apiClient.DefaultRequestHeaders.Accept.Clear();
+            _apiClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
         }
 
         // Call out to the API using the ApiClient username and password and get back our token info
@@ -45,7 +55,7 @@ namespace TRMDesktopUI.Library.Api
                 new KeyValuePair<string, string>("password", password)
             });
 
-            using (HttpResponseMessage response = await apiClient.PostAsync("/Token", data)) // RequestUri is in the Appconfig
+            using (HttpResponseMessage response = await _apiClient.PostAsync("/Token", data)) // RequestUri is in the Appconfig
             {
                 if (response.IsSuccessStatusCode)
                 {
@@ -63,12 +73,12 @@ namespace TRMDesktopUI.Library.Api
 
         public async Task GetLoggedInUserInfo(string token)
         {
-            apiClient.DefaultRequestHeaders.Clear();
-            apiClient.DefaultRequestHeaders.Accept.Clear();
-            apiClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-            apiClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {token}");
+            _apiClient.DefaultRequestHeaders.Clear();
+            _apiClient.DefaultRequestHeaders.Accept.Clear();
+            _apiClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+            _apiClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {token}");
 
-            using (HttpResponseMessage response = await apiClient.GetAsync("/api/User")) // UserController
+            using (HttpResponseMessage response = await _apiClient.GetAsync("/api/User")) // UserController
             {
                 if (response.IsSuccessStatusCode)
                 {
@@ -90,4 +100,3 @@ namespace TRMDesktopUI.Library.Api
         }
     }
 }
-

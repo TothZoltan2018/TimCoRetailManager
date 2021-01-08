@@ -14,7 +14,9 @@ namespace TRMDataManager.Controllers
     {        
         // Find a logged in user's data.
         [HttpGet]
-        public UserModel GetById()
+        // I suppose, this name doesn't matter, the [HttpGet] attribute binds this method to 
+        // the code section where HttpClient.GetAsync("/api/User") is called
+        public UserModel GetById() 
         {
             string userId = RequestContext.Principal.Identity.GetUserId();
             UserData data =  new UserData();

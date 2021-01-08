@@ -39,7 +39,8 @@ namespace TRMDesktopUI
         protected override void Configure()
         {
             // Whenever we ask for a SimpleContainer instance, it will return it.
-            _container.Instance(_container);
+            _container.Instance(_container)
+                .PerRequest<IProductEndpoint, ProductEndpoint>();
 
             _container
                 .Singleton<IWindowManager, WindowManager>()

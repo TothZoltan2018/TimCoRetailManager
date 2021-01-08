@@ -5,14 +5,35 @@ using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TRMDesktopUI.Library.Api;
+using TRMDesktopUI.Library.Models;
 
 namespace TRMDesktopUI.ViewModels
 {
     public class SalesViewModel : Screen
     {
-        private BindingList<string> _products;
+        IProductEndpoint _productEndpoint;
+        public SalesViewModel(IProductEndpoint productEndpoint)
+        {
+            _productEndpoint = productEndpoint;            
+        }
 
-        public BindingList<string> Products
+        protected override async void OnViewLoaded(object view) // Although, it's async, it can be void, because this is an eventhandler
+        {
+            base.OnViewLoaded(view);
+            await LoadProducts();
+        }
+
+
+        private async Task LoadProducts()
+        {
+            var productList = await _productEndpoint.GetAll();
+            Products = new BindingList<ProductModel>(productList);        
+        }
+
+        private BindingList<ProductModel> _products;
+
+        public BindingList<ProductModel> Products
         {
             get { return _products; }
             // Note, that set is not fired when adding elemnts to the List. Only fired when overriding the whole list.
@@ -86,7 +107,7 @@ namespace TRMDesktopUI.ViewModels
 
                 if (false) // "?": If NOT Null
                 {
-                    // make sure something is selected and intem quantity has a value
+                    // make sure something is selected and item quantity has a value
                     output = true;
                 }
 
