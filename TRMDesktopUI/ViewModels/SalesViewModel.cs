@@ -44,9 +44,22 @@ namespace TRMDesktopUI.ViewModels
             }
         }
 
-        private BindingList<string> _cart;
+        private ProductModel _selectedProduct;
 
-        public BindingList<string> Cart
+        public ProductModel SelectedProduct
+        {
+            get { return _selectedProduct; }
+            set
+            {
+                _selectedProduct = value;
+                NotifyOfPropertyChange(() => SelectedProduct);
+                NotifyOfPropertyChange(() => CanAddToCart);
+            }
+        }
+
+        private BindingList<CartItemModel> _cart = new BindingList<CartItemModel>();
+
+        public BindingList<CartItemModel> Cart
         {
             get { return _cart; }
             set
@@ -56,8 +69,7 @@ namespace TRMDesktopUI.ViewModels
             }
         }
 
-
-        private int _itemQuantity;
+        private int _itemQuantity = 1;
 
         // Althought ItemQuantity is a textbox, expecting string, auto-validation is done in the background to check and convert 
         // a numeric string to integer
@@ -68,6 +80,7 @@ namespace TRMDesktopUI.ViewModels
             {
                 _itemQuantity = value;
                 NotifyOfPropertyChange(() => ItemQuantity);
+                NotifyOfPropertyChange(() => CanAddToCart);
             }
         }
 
@@ -75,8 +88,14 @@ namespace TRMDesktopUI.ViewModels
         {
             get
             {
-                // TODO - Replace with calculation
-                return "$0.00";
+                decimal subTotal = 0;
+
+                foreach (var item in Cart)
+                {
+                    subTotal += (item.Product.RetailPrice * item.QuantityInCart);
+                }
+
+                return subTotal.ToString("C");
             }
         }
 
@@ -98,16 +117,15 @@ namespace TRMDesktopUI.ViewModels
             }
         }
 
-
         public bool CanAddToCart
         {
             get
             {
                 bool output = false;
 
-                if (false) // "?": If NOT Null
+                // make sure something is selected and item quantity has a value
+                if (ItemQuantity > 0 && SelectedProduct?.QuantityInStock >= ItemQuantity) // "?": If NOT Null
                 {
-                    // make sure something is selected and item quantity has a value
                     output = true;
                 }
 
@@ -117,7 +135,32 @@ namespace TRMDesktopUI.ViewModels
 
         public void AddToCart()
         {
-        
+            // Compares the two objects (not the values).
+            CartItemModel existingItem = Cart.FirstOrDefault(x => x.Product == SelectedProduct); 
+            // We already have this utem in the cart
+            if (existingItem != null)
+            {
+                // This is executed on the Cart. (existingItem points to an address of an item on the cart)
+                existingItem.QuantityInCart += ItemQuantity;
+                // TODO: This hack needs to be fixed to properly refresh the cart ListBox.
+                Cart.Remove(existingItem);
+                Cart.Add(existingItem);
+            }
+            // New item to the cart
+            else
+            {
+                CartItemModel item = new CartItemModel
+                {
+                    Product = SelectedProduct,
+                    QuantityInCart = ItemQuantity
+                };
+
+                Cart.Add(item);
+            }            
+
+            SelectedProduct.QuantityInStock -= ItemQuantity;
+            ItemQuantity = 1;
+            NotifyOfPropertyChange(() => SubTotal);            
         }
 
         public bool CanRemoveFromCart
@@ -138,7 +181,7 @@ namespace TRMDesktopUI.ViewModels
 
         public void RemoveFromCart()
         {
-
+            NotifyOfPropertyChange(() => SubTotal);
         }
 
         public bool CanCheckout
