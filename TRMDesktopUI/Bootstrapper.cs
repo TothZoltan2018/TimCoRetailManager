@@ -8,6 +8,7 @@ using System.Windows;
 using System.Windows.Controls;
 using TRMDesktopUI.Helpers;
 using TRMDesktopUI.Library.Api;
+using TRMDesktopUI.Library.Helpers;
 using TRMDesktopUI.Library.Models;
 using TRMDesktopUI.ViewModels;
 
@@ -47,6 +48,7 @@ namespace TRMDesktopUI
                 // If the ShellWiewModel aks for an IEventAggregator, it gives back the first EventAggregator ever created
                 .Singleton<IEventAggregator, EventAggregator>()
                 .Singleton<IAPIHelper, APIHelper>()
+                .Singleton<IConfigHelper, ConfigHelper>()
                 .Singleton<ILoggedInUserModel, LoggedInUserModel>();
 
             // Connect all of our ViewModels to our Views
