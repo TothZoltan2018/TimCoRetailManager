@@ -12,21 +12,18 @@ namespace TRMDesktopUI.ViewModels
     public class ShellViewModel : Conductor<object>, IHandle<LogOnEvent>
     {        
         private IEventAggregator _events;
-        private SalesViewModel _salesVM;
-        private SimpleContainer _container;
+        private SalesViewModel _salesVM;       
 
-        public ShellViewModel(LoginViewModel loginVM, IEventAggregator events, SalesViewModel salesVM,
-            SimpleContainer container)
+        public ShellViewModel(LoginViewModel loginVM, IEventAggregator events, SalesViewModel salesVM)
         {
             _events = events;            
             _salesVM = salesVM;
-            _container = container; // We can request new instances if we want
-
+            
             // Subscribing to all events of IHandle<A>, IHandle<B>...
             _events.Subscribe(this);
 
-            // Get a brand new instance of LoginViewModel and acticate it.
-            ActivateItem(_container.GetInstance<LoginViewModel>());            
+            // Get a brand new instance of LoginViewModel and activate it.            
+            ActivateItem(IoC.Get<LoginViewModel>());
         }
 
         // This listen for the LogOnEvent
