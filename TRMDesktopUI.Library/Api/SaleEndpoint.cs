@@ -8,26 +8,22 @@ using TRMDesktopUI.Library.Models;
 
 namespace TRMDesktopUI.Library.Api
 {
-    public class ProductEndpoint : IProductEndpoint
+    public class SaleEndpoint : ISaleEndpoint
     {
         private IAPIHelper _apiHelper;
 
-        public ProductEndpoint(IAPIHelper apiHelper)
+        public SaleEndpoint(IAPIHelper apiHelper)
         {
             _apiHelper = apiHelper;
         }
 
-        public async Task<List<ProductModel>> GetAll()
+        public async Task PostSale(SaleModel sale)
         {
-            // Since we get here after authorisation = logged, _apiClient.DefaultRequestHeaders are 
-            // filled in by APIHelper.GetLoggedInUserInfo() method.
-            using (HttpResponseMessage response = await _apiHelper.ApiClient.GetAsync("/api/Product")) // ProductController
+            using (HttpResponseMessage response = await _apiHelper.ApiClient.PostAsJsonAsync("/api/Sale", sale)) // SaleController
             {
                 if (response.IsSuccessStatusCode)
                 {
-                    var result = await response.Content.ReadAsAsync<List<ProductModel>>();
-
-                    return result;
+                    // TODO: Perhaps log successfull call?
                 }
                 else
                 {
@@ -35,6 +31,5 @@ namespace TRMDesktopUI.Library.Api
                 }
             }
         }
-
     }
 }

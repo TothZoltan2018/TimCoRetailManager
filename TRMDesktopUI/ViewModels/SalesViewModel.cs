@@ -14,10 +14,12 @@ namespace TRMDesktopUI.ViewModels
     public class SalesViewModel : Screen
     {
         IProductEndpoint _productEndpoint;
+        ISaleEndpoint _saleEndpoint;
         IConfigHelper _configHelper;
-        public SalesViewModel(IProductEndpoint productEndpoint, IConfigHelper configHelper)
+        public SalesViewModel(IProductEndpoint productEndpoint, IConfigHelper configHelper, ISaleEndpoint saleEndpoint)
         {
             _productEndpoint = productEndpoint;
+            _saleEndpoint = saleEndpoint;
             _configHelper = configHelper;
         }
 
@@ -26,7 +28,6 @@ namespace TRMDesktopUI.ViewModels
             base.OnViewLoaded(view);
             await LoadProducts();
         }
-
 
         private async Task LoadProducts()
         {
@@ -120,14 +121,6 @@ namespace TRMDesktopUI.ViewModels
             decimal taxAmount = 0;
             decimal taxrate = _configHelper.GetTaxRate()/100;
 
-            //foreach (var item in Cart)
-            //{
-            //    if (item.Product.IsTaxable)
-            //    {
-            //        taxAmount += (item.Product.RetailPrice * item.QuantityInCart * taxrate);
-            //    }
-            //}
-
             taxAmount = Cart
                 .Where(x => x.Product.IsTaxable == true )
                 .Sum(x => x.Product.RetailPrice * x.QuantityInCart * taxrate);
@@ -190,6 +183,7 @@ namespace TRMDesktopUI.ViewModels
             NotifyOfPropertyChange(() => SubTotal);            
             NotifyOfPropertyChange(() => Tax);
             NotifyOfPropertyChange(() => Total);
+            NotifyOfPropertyChange(() => CanCheckout);
         }
 
         public bool CanRemoveFromCart
@@ -204,7 +198,7 @@ namespace TRMDesktopUI.ViewModels
                     output = true;
                 }
 
-                return output;
+                return output;                
             }
         }
 
@@ -213,6 +207,7 @@ namespace TRMDesktopUI.ViewModels
             NotifyOfPropertyChange(() => SubTotal);
             NotifyOfPropertyChange(() => Tax);
             NotifyOfPropertyChange(() => Total);
+            NotifyOfPropertyChange(() => CanCheckout);
         }
 
         public bool CanCheckout
@@ -221,9 +216,9 @@ namespace TRMDesktopUI.ViewModels
             {
                 bool output = false;
 
-                if (false) // "?": If NOT Null
-                {
-                    // make sure there is something in the cart
+                // make sure there is something in the cart
+                if (Cart.Count > 0)  // TODO: "?": If NOT Null
+                {                    
                     output = true;
                 }
 
@@ -231,9 +226,21 @@ namespace TRMDesktopUI.ViewModels
             }
         }
 
-        public void Checkout()
+        public async Task Checkout()
         {
+            // Create a SaleModel from the items in the Cart and post to the API
+            SaleModel sale = new SaleModel();
 
+            foreach (var item in Cart)
+            {
+                sale.SaleDetails.Add(new SaleDetailModel
+                {
+                    ProductId = item.Product.Id,
+                    Quantity = item.QuantityInCart
+                });
+            }
+
+            await _saleEndpoint.PostSale(sale);
         }
     }
 }
