@@ -71,6 +71,12 @@ namespace TRMDesktopUI.Library.Api
             }
         }
 
+        public void LogOffUser()
+        {
+            // Without clearing the token, that would be still valid even if we are logged out on the UI --> Security hole
+            _apiClient.DefaultRequestHeaders.Clear();        
+        }
+
         public async Task GetLoggedInUserInfo(string token)
         {
             _apiClient.DefaultRequestHeaders.Clear();

@@ -19,7 +19,7 @@ namespace TRMDesktopUI.Library.Models
         /// <summary>
         /// Resets all the users's information
         /// </summary>
-        public void LogOffUser()
+        public void ResetUserModel()
         {
             Token = "";
             Id = "";
