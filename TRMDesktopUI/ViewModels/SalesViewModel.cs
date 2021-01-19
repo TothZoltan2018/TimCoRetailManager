@@ -65,8 +65,21 @@ namespace TRMDesktopUI.ViewModels
                 NotifyOfPropertyChange(() => SelectedProduct);
                 NotifyOfPropertyChange(() => CanAddToCart);
             }
-        }        
-        
+        }
+
+        private async Task ResetSalesViewModelAsync()
+        {
+            Cart = new BindingList<CartItemDisplayModel>();
+            // TODO: clearing if needed _selectedCartItem
+            await LoadProducts();
+
+            NotifyOfPropertyChange(() => SubTotal);
+            NotifyOfPropertyChange(() => Tax);
+            NotifyOfPropertyChange(() => Total);
+            NotifyOfPropertyChange(() => CanCheckout);
+
+        }
+
         private CartItemDisplayModel _selectedCartItem;
         public CartItemDisplayModel SelectedCartItem
         {
@@ -206,9 +219,8 @@ namespace TRMDesktopUI.ViewModels
             get
             {
                 bool output = false;
-
-                // Make sure something is selected (Normally this cannot happen. If so, then bug is in the system)
-                if (SelectedCartItem != null && SelectedCartItem?.QuantityInCart > 0) // TODO for Tim, he incorrectly wrote quantity in stock...
+                                
+                if (SelectedCartItem != null && SelectedCartItem?.QuantityInCart > 0) // TODO Zoli: null check not needed
                 {                    
                     output = true;
                 }
@@ -234,6 +246,7 @@ namespace TRMDesktopUI.ViewModels
             NotifyOfPropertyChange(() => Tax);
             NotifyOfPropertyChange(() => Total);
             NotifyOfPropertyChange(() => CanCheckout);
+            NotifyOfPropertyChange(() => CanAddToCart);
         }
 
         public bool CanCheckout
@@ -267,6 +280,8 @@ namespace TRMDesktopUI.ViewModels
             }
 
             await _saleEndpoint.PostSale(sale);
+
+            await ResetSalesViewModelAsync();
         }
     }
 }

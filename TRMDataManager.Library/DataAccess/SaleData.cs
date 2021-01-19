@@ -77,5 +77,3 @@ namespace TRMDataManager.Library.DataAccess
         }  
     }
 }
-
-///irni, hogz a stroed procba kellett ay id

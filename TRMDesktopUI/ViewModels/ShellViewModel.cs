@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Caliburn.Micro;
 using TRMDesktopUI.EventModels;
+using TRMDesktopUI.Library.Models;
 
 namespace TRMDesktopUI.ViewModels
 {
@@ -12,18 +13,48 @@ namespace TRMDesktopUI.ViewModels
     public class ShellViewModel : Conductor<object>, IHandle<LogOnEvent>
     {        
         private IEventAggregator _events;
-        private SalesViewModel _salesVM;       
+        private SalesViewModel _salesVM;
+        private ILoggedInUserModel _user;
 
-        public ShellViewModel(LoginViewModel loginVM, IEventAggregator events, SalesViewModel salesVM)
+        public ShellViewModel(LoginViewModel loginVM, IEventAggregator events, SalesViewModel salesVM, ILoggedInUserModel user)
         {
             _events = events;            
             _salesVM = salesVM;
+            _user = user;
             
             // Subscribing to all events of IHandle<A>, IHandle<B>...
             _events.Subscribe(this);
 
             // Get a brand new instance of LoginViewModel and activate it.            
             ActivateItem(IoC.Get<LoginViewModel>());
+        }
+
+        public bool IsLoggedIn
+        {
+            get
+            {
+                bool output = false;
+
+                if (string.IsNullOrEmpty(_user.Token) == false) // So, the user is not logged in
+                {
+                    output = true;
+                }
+
+                return output;
+            }
+        }
+
+        public void ExitApplication()
+        {
+            //this.ExitApplication();  // Caused StackOverflow Exception
+            TryClose();
+        }
+
+        public void LogOut()
+        {
+            _user.LogOffUser();
+            ActivateItem(IoC.Get<LoginViewModel>());
+            NotifyOfPropertyChange(() => IsLoggedIn);
         }
 
         // This listen for the LogOnEvent
@@ -34,6 +65,7 @@ namespace TRMDesktopUI.ViewModels
             // and when we have this conductor class, only one item can be active.
             // The old item is not deleted, remains in _loginVM.
             ActivateItem(_salesVM);
+            NotifyOfPropertyChange(() => IsLoggedIn);
         }
     }
 }
