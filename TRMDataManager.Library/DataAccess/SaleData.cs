@@ -58,21 +58,35 @@ namespace TRMDataManager.Library.DataAccess
             };
 
             sale.Total = sale.SubTotal + sale.Tax;
-
-            // Save the Sale model
-            SqlDataAccess sql = new SqlDataAccess();
-            sql.SaveData("dbo.spSale_Insert", sale, "TRMData");
-
-            // Get the Sale ID from the Sale model - dbo.spSale_Insert has an output variable Id, but "sale.id" do not get it.
-            // Therefore an other query needs to be run.
-            sale.Id = sql.LoadData<int, dynamic>("spSale_Lookup", new { CashierId = sale.CashierId, SaleDate = sale.SaleDate }, "TRMData").FirstOrDefault();
-            
-            // Finish filling the Sale detail models
-            foreach (var item in details)
+                        
+            // Saving into sale and saledetail tables happen in one transaction
+            using (SqlDataAccess sql = new SqlDataAccess())
             {
-                item.SaleId = sale.Id;
-                // Save the sale detail models
-                sql.SaveData("dbo.spSaleDetail_Insert", item, "TRMData");
+                try
+                {
+                    sql.StartTransaction("TRMData");
+                    // Save the Sale model
+                    sql.SaveDataInTransaction("dbo.spSale_Insert", sale);
+
+                    // Get the Sale ID from the Sale model - dbo.spSale_Insert has an output variable Id, but "sale.id" do not get it.
+                    // Therefore an other query needs to be run.
+                    sale.Id = sql.LoadDataInTransaction<int, dynamic>("spSale_Lookup", new { CashierId = sale.CashierId, SaleDate = sale.SaleDate }).FirstOrDefault();
+
+                    // Finish filling the Sale detail models
+                    foreach (var item in details)
+                    {
+                        item.SaleId = sale.Id;
+                        // Save the sale detail models
+                        sql.SaveDataInTransaction("dbo.spSaleDetail_Insert", item);
+                    }
+
+                    sql.CommitTransaction();
+                }
+                catch
+                {
+                    sql.RollbackTransaction();
+                    throw; // It throws the original exception, from the deep --> more info
+                }                
             }
         }  
     }
