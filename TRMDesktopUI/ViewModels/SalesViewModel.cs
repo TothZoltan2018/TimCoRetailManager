@@ -77,7 +77,6 @@ namespace TRMDesktopUI.ViewModels
             NotifyOfPropertyChange(() => Tax);
             NotifyOfPropertyChange(() => Total);
             NotifyOfPropertyChange(() => CanCheckout);
-
         }
 
         private CartItemDisplayModel _selectedCartItem;

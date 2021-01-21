@@ -55,6 +55,8 @@ namespace TRMDataManager.Library.Internal.DataAccess
             _connection.Open();
 
             _transaction = _connection.BeginTransaction();
+
+            isClosed = false;
         }
 
         public List<T> LoadDataInTransaction<T, U>(string storedProcedure, U parameters)
@@ -69,24 +71,44 @@ namespace TRMDataManager.Library.Internal.DataAccess
         {
             _connection.Execute(storedProcedure, parameters,
                     commandType: CommandType.StoredProcedure, transaction: _transaction);          
-        }        
+        }
+
+        private bool isClosed = false;
 
         // Called if the transaction succeeded. Can be called multiple times because of the ? operators.
         public void CommitTransaction()
         {
             _transaction?.Commit();
-            _connection.Close();
+            _connection?.Close();
+
+            isClosed = true;
         }
 
         public void RollbackTransaction()
         {
             _transaction?.Rollback();
-            _connection.Close();
+            _connection?.Close();
+
+            isClosed = true;
         }
 
         public void Dispose()
         {
-            CommitTransaction();
+            if (isClosed == false)
+            {
+                try
+                {
+                    CommitTransaction();
+                }
+                catch
+                {
+                    // TODO - Log this issue
+                }
+            }
+
+            _transaction = null;
+            _connection = null;
+            
         }
         // Open connect/start transaction method
         // Load using the transaction
