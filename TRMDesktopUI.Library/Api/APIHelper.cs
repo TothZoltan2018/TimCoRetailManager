@@ -23,7 +23,7 @@ namespace TRMDesktopUI.Library.Api
         }
 
         // Read only property to be used from outside this class.
-        //This class is a singleton (created in Bootstrapper), so only one instance of this HttpClient proprty exists.
+        // This class is a singleton (created in Bootstrapper), so only one instance of this HttpClient proprty exists.
         public HttpClient ApiClient
         {
             get
