@@ -10,7 +10,7 @@ using TRMDataManager.Library.Models;
 
 namespace TRMDataManager.Controllers
 {
-    [Authorize] // User must be authorized to use this class
+    [Authorize(Roles = "Cashier")] // User must be authorized in role of a Cashier to use this class
     public class ProductController : ApiController
     {
         // GET api/values

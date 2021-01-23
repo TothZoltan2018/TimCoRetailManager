@@ -31,7 +31,7 @@ namespace TRMDesktopUI.ViewModels
         protected override async void OnViewLoaded(object view) // Although, it's async, it can be void, because this is an eventhandler
         {
             base.OnViewLoaded(view);
-            await LoadProducts();
+            await LoadProducts();  //TODO exception handling if user is unauthorized
         }
 
         private async Task LoadProducts()
