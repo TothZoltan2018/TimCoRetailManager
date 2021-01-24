@@ -3,9 +3,11 @@ using Caliburn.Micro;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Dynamic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 using TRMDesktopUI.Library.Api;
 using TRMDesktopUI.Library.Helpers;
 using TRMDesktopUI.Library.Models;
@@ -19,26 +21,55 @@ namespace TRMDesktopUI.ViewModels
         ISaleEndpoint _saleEndpoint;
         IConfigHelper _configHelper;
         IMapper _mapper;
+        private readonly StatusInfoViewModel _status;
+        private readonly IWindowManager _window;
+
         public SalesViewModel(IProductEndpoint productEndpoint, IConfigHelper configHelper,
-            ISaleEndpoint saleEndpoint, IMapper mapper)
+            ISaleEndpoint saleEndpoint, IMapper mapper, StatusInfoViewModel status, IWindowManager window)
         {
             _productEndpoint = productEndpoint;
             _saleEndpoint = saleEndpoint;
             _configHelper = configHelper;
             _mapper = mapper;
+            _status = status;
+            _window = window;
         }
 
         protected override async void OnViewLoaded(object view) // Although, it's async, it can be void, because this is an eventhandler
         {
             base.OnViewLoaded(view);
-            await LoadProducts();  //TODO exception handling if user is unauthorized
+            try
+            {
+                await LoadProducts();
+
+            }
+            catch (Exception ex)
+            {
+                dynamic settings = new ExpandoObject();
+                settings.WindowStartupLocation = WindowStartupLocation.CenterOwner;
+                settings.ResizeMode = ResizeMode.NoResize;
+                settings.Title = "System Error";
+
+                if (ex.Message == "Unauthorized")
+                {
+                    _status.UpdateMessage("Unauthorized Access", "You do not have permission to interact with the Sales Form.");
+                    _window.ShowDialog(_status, null, settings);
+                }
+                else
+                {
+                    _status.UpdateMessage("Fatal Exception", ex.Message);
+                    _window.ShowDialog(_status, null, settings);
+                }
+
+                TryClose();
+            }
         }
 
         private async Task LoadProducts()
         {
             var productList = await _productEndpoint.GetAll();
             var products = _mapper.Map<List<ProductDisplayModel>>(productList);
-            Products = new BindingList<ProductDisplayModel>(products);        
+            Products = new BindingList<ProductDisplayModel>(products);
         }
 
         private BindingList<ProductDisplayModel> _products;
