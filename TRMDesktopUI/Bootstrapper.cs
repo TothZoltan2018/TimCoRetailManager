@@ -61,6 +61,7 @@ namespace TRMDesktopUI
             // Whenever we ask for a SimpleContainer instance, it will return it.
             _container.Instance(_container)
                 .PerRequest<IProductEndpoint, ProductEndpoint>()
+                .PerRequest<IUserEndpoint, UserEndpoint>()
                 .PerRequest<ISaleEndpoint, SaleEndpoint>();
 
             _container

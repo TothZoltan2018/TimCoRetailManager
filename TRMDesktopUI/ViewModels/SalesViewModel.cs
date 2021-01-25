@@ -41,10 +41,10 @@ namespace TRMDesktopUI.ViewModels
             try
             {
                 await LoadProducts();
-
             }
             catch (Exception ex)
             {
+                // Creating a dialog box starts
                 dynamic settings = new ExpandoObject();
                 settings.WindowStartupLocation = WindowStartupLocation.CenterOwner;
                 settings.ResizeMode = ResizeMode.NoResize;
@@ -52,14 +52,15 @@ namespace TRMDesktopUI.ViewModels
 
                 if (ex.Message == "Unauthorized")
                 {
-                    _status.UpdateMessage("Unauthorized Access", "You do not have permission to interact with the Sales Form.");
-                    _window.ShowDialog(_status, null, settings);
+                    _status.UpdateMessage("Unauthorized Access", "You do not have permission to interact with the Sales Form.");                    
                 }
                 else
                 {
-                    _status.UpdateMessage("Fatal Exception", ex.Message);
-                    _window.ShowDialog(_status, null, settings);
+                    _status.UpdateMessage("Fatal Exception", ex.Message);                    
                 }
+
+                _window.ShowDialog(_status, null, settings);
+                // Creating a dialog box ends
 
                 TryClose();
             }

@@ -59,7 +59,7 @@ namespace TRMDesktopUI.Library.Api
             {
                 if (response.IsSuccessStatusCode)
                 {
-                    // Intalled nuget package: Microsoft.AspNet.WebApi.Client
+                    // Installed nuget package: Microsoft.AspNet.WebApi.Client
                     // Grab the info from the "Content" and put to an AuthenticatedUser model.
                     var result = await response.Content.ReadAsAsync<AuthenticatedUser>();
                     return result;
@@ -84,7 +84,7 @@ namespace TRMDesktopUI.Library.Api
             _apiClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
             _apiClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {token}");
 
-            using (HttpResponseMessage response = await _apiClient.GetAsync("/api/User")) // UserController
+            using (HttpResponseMessage response = await _apiClient.GetAsync("/api/User")) // UserController.GetById() is called
             {
                 if (response.IsSuccessStatusCode)
                 {

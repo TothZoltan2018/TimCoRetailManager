@@ -11,6 +11,10 @@
             <MenuItem Header="_File"> <!-- "_" allows ALT+F keystroke access -->
                 <MenuItem x:Name="ExitApplication" Header="E_xit" />
             </MenuItem>
+            <MenuItem Header="_Users">                
+                <MenuItem x:Name="UserManagement" Header="User_Management" />
+            </MenuItem>
+
             <MenuItem Header="_Account" Visibility="{Binding IsLoggedIn, Converter={StaticResource BooleanToVisibilityConverter}, FallbackValue=Collapsed}">
                 <MenuItem x:Name="LogOut" Header="_Log Out" />
             </MenuItem>
