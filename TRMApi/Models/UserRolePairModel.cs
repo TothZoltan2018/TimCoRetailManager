@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Web;
+using System.Threading.Tasks;
 
-namespace TRMDataManager.Models
+namespace TRMApi.Models
 {
     // Method parameters which are passed in as HttpGet can be multiple. These are sent as url parameters.
     // But those which are passed in as HttpPost needs to be
