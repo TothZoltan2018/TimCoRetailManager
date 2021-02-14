@@ -27,6 +27,7 @@ Right click on the project --> Build. 0 Error, 1 Warning: In the app.config, the
 Note, that int the .Net Framework we used Json nuget package. In .NET Standard 2.0 we do not need to install it, because it came togeather with Microsoft.AspNet.WebApi.Client nuget package.
 We can delete the app.config, which is by the way only about Json config, so not needed.
 Before that I build the solution and run it. Works fine, Tim had a file not found exception! The solution was to install System.Configuration.ConfigurationManager nugetpackage in TRMDektopUI (so not the project we are transferring to .core) project. (Where the App.config file is. /This is read by the TRMDesktopUI.Library.Api.APIHelper./) As I am doing this project later, the ConfigurationManager has a version which is compatible with core, so no problem raised up.
+----------------------------------------------------------------------------------------------------------------------------------
 
 CHAPTER 2. TRMDataManager.Library project
 
@@ -78,6 +79,7 @@ Conclusion from CHAPTER 1 and 2: It seems that the dll-s are not brought over fr
 
 We do not need the TRMDataManager.Library packages.config. Delete it.
 
+----------------------------------------------------------------------------------------------------------------------------------
 CHAPTER 3 - TRMDataManager project
 Unload the project. Since thre are a lot of change to do, we do not only edit csproj file. We create a new project and move the logic there and will delete the .net framework project.
 So, Create a new ASP.NET Core 3.0 Web Application (Model-View-Controller) project under the API folder: TRMApi. Changenge Authentication: Individual User Acounts, Store user account in-app.
@@ -121,4 +123,16 @@ Actually creating the roles and userroles:
 We can put this code anywhere, but for now into HomeController.Privacy()
 
 Go to the solution and Set startup projects to multiple. Let the TRMApi and the TRMDesktopUI be Start, the rest None.
+We committed into git even if at login we got "Not Found" errormessage:
+a33c2b7e52ddd56cd2dc72bab51d78ab544cee54	Zoltan Toth <toth.tozso.zoltan@gmail.com>	2/12/2021 10:23:15 PM +00:00	Upgrading to .NET Core: From WebAPI to ASP.NET Core API
+----------------------------------------------------------------------------------------------------------------------------------
+New video started: Upgrading to .NET Core: Adding JWT Authentication to Our API
+
+We got 404 message: endpoint 5001/Token/... not found.
+Problems: 
+Authentication is not working at all. (Can get product data even if we are not logged in with a Cashier role). 
+ConfigurationManager does not returns the connectionstring.
+We changed the SqlDataAccess to receive an IConfiguration parameter, which solves connectionstring problem... We need to modify all places where SqlDataAccess is called.
+Build TRMDataManager.Library. Succeeds.
+This IConfiguration comes from the .net core web api. The dependency injection sysetem is built into it.
 

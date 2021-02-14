@@ -1,4 +1,5 @@
 ﻿using Dapper;
+using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
@@ -13,10 +14,15 @@ namespace TRMDataManager.Library.Internal.DataAccess
     // This class is only usable in this library project. This is accessible through TRMDataManager.Library.DataAccess layer
     internal class SqlDataAccess : IDisposable
     {
-        // ConnectionString is in the TRMDataManager/Web.config
+        private IConfiguration _config;
+        public SqlDataAccess(IConfiguration config)
+        {
+            _config = config;
+        }
+        // ConnectionString is in the TRMApi/appsettings.json
         public string GetConnectionString(string name)
         {
-            return ConfigurationManager.ConnectionStrings[name].ConnectionString;
+            return _config.GetConnectionString(name);            
         }
 
         public List<T> LoadData<T, U>(string storedProcedure, U parameters, string connectionStringName)
@@ -73,7 +79,7 @@ namespace TRMDataManager.Library.Internal.DataAccess
                     commandType: CommandType.StoredProcedure, transaction: _transaction);          
         }
 
-        private bool isClosed = false;
+        private bool isClosed = false;        
 
         // Called if the transaction succeeded. Can be called multiple times because of the ? operators.
         public void CommitTransaction()

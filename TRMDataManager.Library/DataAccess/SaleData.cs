@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Extensions.Configuration;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -10,17 +11,25 @@ namespace TRMDataManager.Library.DataAccess
 {
     public class SaleData
     {
+        private readonly IConfiguration _config;
+
+        public SaleData(IConfiguration config)
+        {
+            _config = config;
+        }
+
         /// <summary>
         /// Saves the sale model to database
         /// </summary>
-        /// <param name="saleInfo">sale is a SaleModel received from the API</param>
+        /// <param name="saleInfo"> is a SaleModel received from the API</param>
+        /// 
         public void SaveSale(SaleModel saleInfo, string cashierId)
         {
             // Note, We do not trust the frontend, therefore we don't get all the infos from there.
             // TODO: Make this SOLID/DRY/Better
             // Start filling in the Sale Detail models we will save to the database
             List<SaleDetailDBModel> details = new List<SaleDetailDBModel>();
-            ProductData products = new ProductData();
+            ProductData products = new ProductData(_config);
             var taxRate = ConfigHelper.GetTaxRate()/100;
 
             foreach (var item in saleInfo.SaleDetails)
@@ -60,7 +69,7 @@ namespace TRMDataManager.Library.DataAccess
             sale.Total = sale.SubTotal + sale.Tax;
                         
             // Saving into sale and saledetail tables happen in one transaction
-            using (SqlDataAccess sql = new SqlDataAccess())
+            using (SqlDataAccess sql = new SqlDataAccess(_config))
             {
                 try
                 {
@@ -92,7 +101,7 @@ namespace TRMDataManager.Library.DataAccess
 
         public List<SaleReportModel> GetSaleReport()
         {
-            SqlDataAccess sql = new SqlDataAccess();
+            SqlDataAccess sql = new SqlDataAccess(_config);
 
             var output = sql.LoadData<SaleReportModel, dynamic>("dbo.spSale_SaleReport", new { }, "TRMData");
 

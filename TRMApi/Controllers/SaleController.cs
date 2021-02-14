@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,11 +17,18 @@ namespace TRMApi.Controllers
     [Authorize]
     public class SaleController : ControllerBase // MVC controller
     {
+        private readonly IConfiguration _config;
+
+        public SaleController(IConfiguration config)
+        {
+            _config = config;
+        }
+
         // UI|---- Post ---> Insert into Database
         [Authorize(Roles = "Cashier")]
         public void Post(SaleModel sale)
         {
-            SaleData data = new SaleData();
+            SaleData data = new SaleData(_config);
             string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);//in framework: RequestContext.Principal.Identity.GetUserId();;
 
             data.SaveSale(sale, userId);
@@ -36,7 +44,7 @@ namespace TRMApi.Controllers
             //    // Do asmin stuff
             //}
 
-            SaleData data = new SaleData();
+            SaleData data = new SaleData(_config);
 
             return data.GetSaleReport();
         }

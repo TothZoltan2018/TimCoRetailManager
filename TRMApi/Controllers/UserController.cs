@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -22,11 +23,15 @@ namespace TRMApi.Controllers
     {
         private ApplicationDbContext _context;
         private UserManager<IdentityUser> _userManager;
+        private readonly IConfiguration _config;
 
-        public UserController(ApplicationDbContext context, UserManager<IdentityUser> userManager)
+        public UserController(ApplicationDbContext context, 
+            UserManager<IdentityUser> userManager,
+            IConfiguration config)
         {
             _context = context;
             _userManager = userManager;
+            _config = config;
         }
 
         // Find a logged in user's data.
@@ -36,7 +41,7 @@ namespace TRMApi.Controllers
         public UserModel GetById()
         {
             string userId = User.FindFirstValue(ClaimTypes.NameIdentifier); //in framework: RequestContext.Principal.Identity.GetUserId();
-            UserData data = new UserData();
+            UserData data = new UserData(_config);
 
             return data.GetUserById(userId).First();
         }
