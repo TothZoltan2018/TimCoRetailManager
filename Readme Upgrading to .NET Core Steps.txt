@@ -130,9 +130,23 @@ New video started: Upgrading to .NET Core: Adding JWT Authentication to Our API
 
 We got 404 message: endpoint 5001/Token/... not found.
 Problems: 
-Authentication is not working at all. (Can get product data even if we are not logged in with a Cashier role). 
+Authentication is not working at all. (Can get product data even if we are not logged in with a Cashier role (In the browser /api/Product)). 
 ConfigurationManager does not returns the connectionstring.
-We changed the SqlDataAccess to receive an IConfiguration parameter, which solves connectionstring problem... We need to modify all places where SqlDataAccess is called.
-Build TRMDataManager.Library. Succeeds.
-This IConfiguration comes from the .net core web api. The dependency injection sysetem is built into it.
+	We changed the SqlDataAccess to receive an IConfiguration parameter, which solves connectionstring problem... We need to modify all places where SqlDataAccess is called.
+	Build TRMDataManager.Library. Succeeds.
+	This IConfiguration comes from the .net core web api. The dependency injection sysetem is built into it.
+Authentication: in the framework, we used token based authentication. We logged in and get a token to indicate that we are authorized. By default in .net core we don't have it. We need to use nuget packages for it:
+Microsoft.AspNetCore.Authentication.JwtBearer (JWT --> Json WebToken) v5.0.3 is not compatible with .netcore 3.1. I needed to install older, such the one Tim used some month earlier... v3.1.0
+System.IdentityModel.Tokens.Jwt
+Wa added a new MVC controller: TokenController. This is the authentication side.
+The token receiver side is the Startup.cs. We add Authentication to ConfigureServices. It evaluates the token (sent by the TokenController) to check 
+ if the user is authenticated and the token has not expired.
+ 
+We could not login. Internal server error... A new userid has been created and that was not in the TRMData User Table. We put in manually and login is ok.
+Then tried to step in usermanagement. Not found exception. Not finding route /api/User/Admin/GetAllUsers, despite it is in the UserController... For better debugging, put back swagger again.
+So install nuget packages in TRMApi: Swashbuckle.AspNetCore v5.0.0, Swashbuckle.Core v5.6.0, Swashbuckle.AspNetCore.Swagger v5.0.0, vSwashbuckle.AspNetCore.SwaggerGen v5.0.0, Swashbuckle.AspNetCore.SwaggerUI v5.0.0, Swashbuckle.AspNetCore.Annotations v5.0.0
+Adding many things in Startup.cs
+Swagger fails becasue in v2.0 all the posts and gets in the controllers needs to be marked with [HttpGet]/[HttpPost] attribute. (The naming convention of a method is not working anymore).
+The endpoints routes in core are additive. It consists of the route attribute of the class and the route attribute of the methods. Therefore the latter was modified not having duplcated paths.
+
 
