@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Caliburn.Micro;
 using TRMDesktopUI.EventModels;
@@ -26,10 +27,11 @@ namespace TRMDesktopUI.ViewModels
             _aPIHelper = aPIHelper;
             
             // Subscribing to all events of IHandle<A>, IHandle<B>...
-            _events.Subscribe(this);
+            _events.SubscribeOnPublishedThread(this);
 
-            // Get a brand new instance of LoginViewModel and activate it.            
-            ActivateItem(IoC.Get<LoginViewModel>());
+            // Get a brand new instance of LoginViewModel and activate it.
+            // We do not await it intentionlly.
+            ActivateItemAsync(IoC.Get<LoginViewModel>(), new CancellationToken());
         }
 
         public bool IsLoggedIn
@@ -50,31 +52,38 @@ namespace TRMDesktopUI.ViewModels
         public void ExitApplication()
         {
             //this.ExitApplication();  // Caused StackOverflow Exception
-            TryClose();
+            TryCloseAsync();
         }
 
-        public void UserManagement()
+        public async Task UserManagement()
         {
-            ActivateItem(IoC.Get<UserDisplayViewModel>());
+            await ActivateItemAsync(IoC.Get<UserDisplayViewModel>(), new CancellationToken());
         }
 
-        public void LogOut()
+        public async Task LogOut()
         {
             _user.ResetUserModel();
             _aPIHelper.LogOffUser();
-            ActivateItem(IoC.Get<LoginViewModel>());
+            await ActivateItemAsync(IoC.Get<LoginViewModel>(), new CancellationToken());
             NotifyOfPropertyChange(() => IsLoggedIn);
         }
 
         // This listen for the LogOnEvent
-        public void Handle(LogOnEvent message)
+        //public void Handle(LogOnEvent message)
+        //{
+        //    // Close out the LoginView and open up the SalesView. This happens because 
+        //    // AcitvateItem is in the Conductor class,
+        //    // and when we have this conductor class, only one item can be active.
+        //    // The old item is not deleted, remains in _loginVM.
+        //    ActivateItem(_salesVM);
+        //    NotifyOfPropertyChange(() => IsLoggedIn);
+        //}
+
+        public async Task HandleAsync(LogOnEvent message, CancellationToken cancellationToken)
         {
-            // Close out the LoginView and open up the SalesView. This happens because 
-            // AcitvateItem is in the Conductor class,
-            // and when we have this conductor class, only one item can be active.
-            // The old item is not deleted, remains in _loginVM.
-            ActivateItem(_salesVM);
+            await ActivateItemAsync(_salesVM, cancellationToken);
             NotifyOfPropertyChange(() => IsLoggedIn);
+
         }
     }
 }

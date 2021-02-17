@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using TRMDesktopUI.EventModels;
 using TRMDesktopUI.Library.Api;
@@ -97,7 +98,7 @@ namespace TRMDesktopUI.ViewModels
                 // Capture more info about the logged in user
                 await _apiHelper.GetLoggedInUserInfo(result.Access_Token);
 
-                _events.PublishOnUIThread(new LogOnEvent()); // Does nothing just broadcasts that a login event happened.
+                await _events.PublishOnUIThreadAsync(new LogOnEvent(), new CancellationToken()); // Does nothing just broadcasts that a login event happened.
             }
             catch (Exception ex)
             {

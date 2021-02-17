@@ -23,7 +23,7 @@ namespace TRMDesktopUI.ViewModels
                 
         public void CLose()
         {
-            TryClose(); // Closes the (only) this Form. AS oppose, this.close: CLoses the entire application.
+            TryCloseAsync(); // Closes the (only) this Form. AS oppose, this.close: CLoses the entire application.
         }
     }
 }
