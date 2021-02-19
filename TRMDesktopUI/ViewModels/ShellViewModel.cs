@@ -14,15 +14,16 @@ namespace TRMDesktopUI.ViewModels
     // Inheriting from "Conductor<object>" allows to display one and only one form on view "ShelView"
     public class ShellViewModel : Conductor<object>, IHandle<LogOnEvent>
     {        
-        private IEventAggregator _events;
-        private SalesViewModel _salesVM;
+        private IEventAggregator _events;        
         private ILoggedInUserModel _user;
         private IAPIHelper _aPIHelper;
 
-        public ShellViewModel(LoginViewModel loginVM, IEventAggregator events, SalesViewModel salesVM, ILoggedInUserModel user, IAPIHelper aPIHelper)
+        public ShellViewModel(LoginViewModel loginVM,
+                              IEventAggregator events,                              
+                              ILoggedInUserModel user,
+                              IAPIHelper aPIHelper)
         {
             _events = events;            
-            _salesVM = salesVM;
             _user = user;
             _aPIHelper = aPIHelper;
             
@@ -68,22 +69,16 @@ namespace TRMDesktopUI.ViewModels
             NotifyOfPropertyChange(() => IsLoggedIn);
         }
 
-        // This listen for the LogOnEvent
-        //public void Handle(LogOnEvent message)
-        //{
-        //    // Close out the LoginView and open up the SalesView. This happens because 
-        //    // AcitvateItem is in the Conductor class,
-        //    // and when we have this conductor class, only one item can be active.
-        //    // The old item is not deleted, remains in _loginVM.
-        //    ActivateItem(_salesVM);
-        //    NotifyOfPropertyChange(() => IsLoggedIn);
-        //}
-
+        // This listens for the LogOnEvent. (Because this class inhereted from IHandle<LogOnEvent>)
         public async Task HandleAsync(LogOnEvent message, CancellationToken cancellationToken)
-        {
-            await ActivateItemAsync(_salesVM, cancellationToken);
+        {            
+            // Close out the LoginView and open up the SalesView. This happens because 
+            // AcitvateItem is in the Conductor class,
+            // and when we have this conductor class, only one item can be active.
+            // The old item is not deleted, remains in _loginVM.
+            // Get a brand new instance of SalesViewModel and activate it.
+            await ActivateItemAsync(IoC.Get<SalesViewModel>(), cancellationToken);
             NotifyOfPropertyChange(() => IsLoggedIn);
-
         }
     }
 }

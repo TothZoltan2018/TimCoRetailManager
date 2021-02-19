@@ -167,6 +167,10 @@ Add back the reference to TRMDesktopUI.Library. (It is now in the csproj file.)
 Now we added nuget packages to AutoMapper and to Caliburn Micro.
 Caliburn Micro v3.2.0 does not work with .net core 3. We changed Package source from nuget.org to Caliburn Micro Package Source. The link was from on of the comments... Checkbox true: include rereleases. So install Caliburn.Micro (and not Caliburn.Micro.Core) v4.0.100-alpha. (Old, but the same as Tim did.)
 Build: In ShelViewModel there are a lot of error. IHandle Interface has been change: No more Handle method. Instead HandleAsync...
+Build again. More errors in other ViewModels. Repeat the previous action for other VMs.
+
+
+
 
 
 
