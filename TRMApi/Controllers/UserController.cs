@@ -23,15 +23,15 @@ namespace TRMApi.Controllers
     {
         private ApplicationDbContext _context;
         private UserManager<IdentityUser> _userManager;
-        private readonly IConfiguration _config;
+        private readonly IUserData _userData;
 
         public UserController(ApplicationDbContext context, 
             UserManager<IdentityUser> userManager,
-            IConfiguration config)
+            IUserData userData)
         {
             _context = context;
             _userManager = userManager;
-            _config = config;
+            _userData = userData;
         }
 
         // Find a logged in user's data.
@@ -40,10 +40,9 @@ namespace TRMApi.Controllers
         // the code section in APIHelper.GetLoggedInUserInfo, where HttpClient.GetAsync("/api/User") is called
         public UserModel GetById()
         {
-            string userId = User.FindFirstValue(ClaimTypes.NameIdentifier); //in framework: RequestContext.Principal.Identity.GetUserId();
-            UserData data = new UserData(_config);
+            string userId = User.FindFirstValue(ClaimTypes.NameIdentifier); //in framework: RequestContext.Principal.Identity.GetUserId();            
 
-            return data.GetUserById(userId).First();
+            return _userData.GetUserById(userId).First();
         }
 
         [Authorize(Roles = "Admin")]
@@ -70,13 +69,7 @@ namespace TRMApi.Controllers
                 };
 
                 u.Roles = userRoles.Where(x => x.UserId == u.Id).ToDictionary(key => key.RoleId, val => val.Name);
-
-                // Match rolenames to all the roleids the user has
-                //foreach (var userRole in user.Roles)
-                //{
-                //    u.Roles.Add(userRole.RoleId, roles.Where(x => x.Id == userRole.RoleId).First().Name);
-                //}
-
+                        
                 output.Add(u);
             }
             return output;

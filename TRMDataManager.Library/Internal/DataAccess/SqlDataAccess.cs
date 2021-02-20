@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 namespace TRMDataManager.Library.Internal.DataAccess
 {
     // This class is only usable in this library project. This is accessible through TRMDataManager.Library.DataAccess layer
-    internal class SqlDataAccess : IDisposable
+    public class SqlDataAccess : IDisposable, ISqlDataAccess
     {
         private IConfiguration _config;
         public SqlDataAccess(IConfiguration config)
@@ -22,7 +22,7 @@ namespace TRMDataManager.Library.Internal.DataAccess
         // ConnectionString is in the TRMApi/appsettings.json
         public string GetConnectionString(string name)
         {
-            return _config.GetConnectionString(name);            
+            return _config.GetConnectionString(name);
         }
 
         public List<T> LoadData<T, U>(string storedProcedure, U parameters, string connectionStringName)
@@ -30,22 +30,22 @@ namespace TRMDataManager.Library.Internal.DataAccess
             string connectionString = GetConnectionString(connectionStringName);
 
             using (IDbConnection connection = new SqlConnection(connectionString))
-            { 
+            {
                 List<T> rows = connection.Query<T>(storedProcedure, parameters,
                     commandType: CommandType.StoredProcedure).ToList();
 
                 return rows;
             }
         }
-        
+
         public void SaveData<T>(string storedProcedure, T parameters, string connectionStringName)
         {
             string connectionString = GetConnectionString(connectionStringName);
 
             using (IDbConnection connection = new SqlConnection(connectionString))
-            { 
+            {
                 connection.Execute(storedProcedure, parameters,
-                    commandType: CommandType.StoredProcedure);                
+                    commandType: CommandType.StoredProcedure);
             }
         }
 
@@ -70,16 +70,16 @@ namespace TRMDataManager.Library.Internal.DataAccess
             List<T> rows = _connection.Query<T>(storedProcedure, parameters,
                 commandType: CommandType.StoredProcedure, transaction: _transaction).ToList();
 
-            return rows;            
+            return rows;
         }
 
         public void SaveDataInTransaction<T>(string storedProcedure, T parameters)
         {
             _connection.Execute(storedProcedure, parameters,
-                    commandType: CommandType.StoredProcedure, transaction: _transaction);          
+                    commandType: CommandType.StoredProcedure, transaction: _transaction);
         }
 
-        private bool isClosed = false;        
+        private bool isClosed = false;
 
         // Called if the transaction succeeded. Can be called multiple times because of the ? operators.
         public void CommitTransaction()
@@ -114,12 +114,6 @@ namespace TRMDataManager.Library.Internal.DataAccess
 
             _transaction = null;
             _connection = null;
-            
         }
-        // Open connect/start transaction method
-        // Load using the transaction
-        // Save using the transaction
-        // Close connection/stop transaction method
-        // Dispose
     }
 }

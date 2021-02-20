@@ -9,13 +9,14 @@ using TRMDataManager.Library.Models;
 
 namespace TRMDataManager.Library.DataAccess
 {
-    public class SaleData
-    {
-        private readonly IConfiguration _config;
-
-        public SaleData(IConfiguration config)
+    public class SaleData : ISaleData
+    {        
+        private readonly ISqlDataAccess _sql;
+        private readonly IProductData _productData;
+        public SaleData(ISqlDataAccess sql, IProductData productData)
         {
-            _config = config;
+            _sql = sql;
+            _productData = productData;
         }
 
         /// <summary>
@@ -29,8 +30,8 @@ namespace TRMDataManager.Library.DataAccess
             // TODO: Make this SOLID/DRY/Better
             // Start filling in the Sale Detail models we will save to the database
             List<SaleDetailDBModel> details = new List<SaleDetailDBModel>();
-            ProductData products = new ProductData(_config);
-            var taxRate = ConfigHelper.GetTaxRate()/100;
+            
+            var taxRate = ConfigHelper.GetTaxRate() / 100;
 
             foreach (var item in saleInfo.SaleDetails)
             {
@@ -41,7 +42,7 @@ namespace TRMDataManager.Library.DataAccess
                 };
 
                 //Get the info about this product                
-                var productInfo = products.GetProductById(detail.ProductId);
+                var productInfo = _productData.GetProductById(detail.ProductId);
 
                 // Fill in the available information (SaleId is not get yet.)
                 if (productInfo == null)
@@ -54,7 +55,7 @@ namespace TRMDataManager.Library.DataAccess
                 {
                     detail.Tax = (detail.PurchasePrice * taxRate);
                 }
-                
+
                 details.Add(detail);
             }
 
@@ -67,43 +68,38 @@ namespace TRMDataManager.Library.DataAccess
             };
 
             sale.Total = sale.SubTotal + sale.Tax;
-                        
-            // Saving into sale and saledetail tables happen in one transaction
-            using (SqlDataAccess sql = new SqlDataAccess(_config))
+
+            // Saving into sale and saledetail tables happen in one transaction            
+            try
             {
-                try
+                _sql.StartTransaction("TRMData");
+                // Save the Sale model
+                _sql.SaveDataInTransaction("dbo.spSale_Insert", sale);
+
+                // Get the Sale ID from the Sale model - dbo.spSale_Insert has an output variable Id, but "sale.id" do not get it.
+                // Therefore an other query needs to be run.
+                sale.Id = _sql.LoadDataInTransaction<int, dynamic>("spSale_Lookup", new { CashierId = sale.CashierId, SaleDate = sale.SaleDate }).FirstOrDefault();
+
+                // Finish filling the Sale detail models
+                foreach (var item in details)
                 {
-                    sql.StartTransaction("TRMData");
-                    // Save the Sale model
-                    sql.SaveDataInTransaction("dbo.spSale_Insert", sale);
-
-                    // Get the Sale ID from the Sale model - dbo.spSale_Insert has an output variable Id, but "sale.id" do not get it.
-                    // Therefore an other query needs to be run.
-                    sale.Id = sql.LoadDataInTransaction<int, dynamic>("spSale_Lookup", new { CashierId = sale.CashierId, SaleDate = sale.SaleDate }).FirstOrDefault();
-
-                    // Finish filling the Sale detail models
-                    foreach (var item in details)
-                    {
-                        item.SaleId = sale.Id;
-                        // Save the sale detail models
-                        sql.SaveDataInTransaction("dbo.spSaleDetail_Insert", item);
-                    }
-
-                    sql.CommitTransaction();
+                    item.SaleId = sale.Id;
+                    // Save the sale detail models
+                    _sql.SaveDataInTransaction("dbo.spSaleDetail_Insert", item);
                 }
-                catch
-                {
-                    sql.RollbackTransaction();
-                    throw; // It throws the original exception, from the deep --> more info
-                }                
+
+                _sql.CommitTransaction();
             }
+            catch
+            {
+                _sql.RollbackTransaction();
+                throw; // It throws the original exception, from the deep --> more info
+            }            
         }
 
         public List<SaleReportModel> GetSaleReport()
         {
-            SqlDataAccess sql = new SqlDataAccess(_config);
-
-            var output = sql.LoadData<SaleReportModel, dynamic>("dbo.spSale_SaleReport", new { }, "TRMData");
+            var output = _sql.LoadData<SaleReportModel, dynamic>("dbo.spSale_SaleReport", new { }, "TRMData");
 
             return output;
         }

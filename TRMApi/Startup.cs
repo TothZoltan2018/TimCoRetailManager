@@ -15,6 +15,8 @@ using TRMApi.Data;
 using Microsoft.OpenApi.Models;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using TRMDataManager.Library.DataAccess;
+using TRMDataManager.Library.Internal.DataAccess;
 
 namespace TRMApi
 {
@@ -38,6 +40,18 @@ namespace TRMApi
                 .AddEntityFrameworkStores<ApplicationDbContext>();
             services.AddControllersWithViews();
             services.AddRazorPages();
+
+            // Personal Services
+            // Transient (the oposite of the singleton): A new instance of InventoryData is created anytime asked for IInventoryData
+            // InventoryData's constructor has a parameter type IConfiguration. This parameter is
+            // supplied by the DI system of .NET Core. (This parameter was fed to SqlDataAccess. This 
+            // kind of passing down the parameter is done by DI system.)
+            services.AddTransient<IInventoryData, InventoryData>();
+            services.AddTransient<IProductData, ProductData>();
+            services.AddTransient<ISaleData, SaleData>();
+            services.AddTransient<IUserData, UserData>();
+            services.AddTransient<ISqlDataAccess, SqlDataAccess>();
+
             // This evaluates the token (sent by the TokenController) to check 
             // if the user is authenticated and the token has not expired.
             services.AddAuthentication(options =>
