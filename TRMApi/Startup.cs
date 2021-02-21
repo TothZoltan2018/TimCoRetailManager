@@ -40,7 +40,7 @@ namespace TRMApi
                 .AddEntityFrameworkStores<ApplicationDbContext>();
             services.AddControllersWithViews();
             services.AddRazorPages();
-
+            
             // Personal Services
             // Transient (the oposite of the singleton): A new instance of InventoryData is created anytime asked for IInventoryData
             // InventoryData's constructor has a parameter type IConfiguration. This parameter is

@@ -1,5 +1,6 @@
 ﻿using Dapper;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
@@ -14,10 +15,12 @@ namespace TRMDataManager.Library.Internal.DataAccess
     // This class is only usable in this library project. This is accessible through TRMDataManager.Library.DataAccess layer
     public class SqlDataAccess : IDisposable, ISqlDataAccess
     {
-        private IConfiguration _config;
-        public SqlDataAccess(IConfiguration config)
+        private readonly IConfiguration _config;
+        private readonly ILogger<SqlDataAccess> _logger;
+        public SqlDataAccess(IConfiguration config, ILogger<SqlDataAccess> logger)
         {
             _config = config;
+            _logger = logger;
         }
         // ConnectionString is in the TRMApi/appsettings.json
         public string GetConnectionString(string name)
@@ -106,9 +109,9 @@ namespace TRMDataManager.Library.Internal.DataAccess
                 {
                     CommitTransaction();
                 }
-                catch
+                catch (Exception ex)
                 {
-                    // TODO - Log this issue
+                    _logger.LogError(ex, "Commit tansaction failed in the Dispose method");
                 }
             }
 

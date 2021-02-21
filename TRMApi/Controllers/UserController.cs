@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -24,14 +25,17 @@ namespace TRMApi.Controllers
         private ApplicationDbContext _context;
         private UserManager<IdentityUser> _userManager;
         private readonly IUserData _userData;
+        private readonly ILogger<UserController> _logger;
 
         public UserController(ApplicationDbContext context, 
             UserManager<IdentityUser> userManager,
-            IUserData userData)
+            IUserData userData,
+            ILogger<UserController> logger)
         {
             _context = context;
             _userManager = userManager;
             _userData = userData;
+            _logger = logger;
         }
 
         // Find a logged in user's data.
@@ -90,7 +94,14 @@ namespace TRMApi.Controllers
         [Route("Admin/AddRole")]
         public async Task AddARole(UserRolePairModel pairing)
         {
+            string loggedInUserId = User.FindFirstValue(ClaimTypes.NameIdentifier); //in framework: RequestContext.Principal.Identity.GetUserId();            
+            
             var user = await _userManager.FindByIdAsync(pairing.UserId);
+
+            // Note, there is no $ before ". This is not string interpolation, but struxtured logging.
+            _logger.LogInformation("Admin {Admin} added user {User} to role {Role}",
+                loggedInUserId, user.Id, pairing.RoleName);
+
             await _userManager.AddToRoleAsync(user, pairing.RoleName);            
         }
 
@@ -99,7 +110,14 @@ namespace TRMApi.Controllers
         [Route("Admin/RemoveRole")]
         public async Task RemoveARole(UserRolePairModel pairing)
         {
+            string loggedInUserId = User.FindFirstValue(ClaimTypes.NameIdentifier); //in framework: RequestContext.Principal.Identity.GetUserId();            
+            
             var user = await _userManager.FindByIdAsync(pairing.UserId);
+
+            // Note, there is no $ before ". This is not string interpolation, but struxtured logging.
+            _logger.LogInformation("Admin {Admin} removed user {User} from role {Role}",
+                loggedInUserId, user.Id, pairing.RoleName);
+
             await _userManager.RemoveFromRoleAsync(user, pairing.RoleName);
         }
     }
