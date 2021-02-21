@@ -64,7 +64,8 @@ namespace TRMApi
                     jwtBearerOptions.TokenValidationParameters = new TokenValidationParameters
                     {
                         ValidateIssuerSigningKey = true,
-                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("MySecretKEyIsSecretSoDoNotTell")), // this must be kept in secret
+                        // pulls out the securitykey value from appsettings.json
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration.GetValue<string>("Secrets:SecurityKey"))), // this must be kept in secret
                         ValidateIssuer = false,
                         ValidateAudience = false,
                         ValidateLifetime = true,
